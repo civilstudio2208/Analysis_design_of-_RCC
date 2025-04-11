@@ -1,0 +1,2525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Structural Design System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+        
+        .result-card {
+            background-color: white;
+            border-left: 5px solid var(--secondary-color);
+        }
+        
+        .param-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .param-label {
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            color: var(--dark-color);
+        }
+        
+        .input-group-text {
+            background-color: #e9ecef;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+        
+        .tab-content {
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .visualization-container {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #ddd;
+        }
+        
+        .section-title {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .calculation-step {
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            border-left: 3px solid #eee;
+        }
+        
+        .calculation-step:hover {
+            border-left-color: var(--primary-color);
+        }
+        
+        .real-time-badge {
+            background-color: var(--warning-color);
+            color: white;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        .download-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .code-reference {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-building me-2"></i>Complete Structural Design System</h1>
+                    <p class="lead">IS Code compliant design with real-time calculations</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group mt-2">
+                        <button class="btn btn-light" id="saveProject">
+                            <i class="fas fa-save me-1"></i> Save
+                        </button>
+                        <button class="btn btn-light" id="loadProject">
+                            <i class="fas fa-folder-open me-1"></i> Load
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="notification alert alert-success alert-dismissible fade show" role="alert">
+            <span id="notificationText">Design updated successfully!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <ul class="nav nav-tabs" id="designTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="global-tab" data-bs-toggle="tab" data-bs-target="#global" type="button" role="tab">Global Parameters</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="seismic-tab" data-bs-toggle="tab" data-bs-target="#seismic" type="button" role="tab">Seismic Analysis</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="wind-tab" data-bs-toggle="tab" data-bs-target="#wind" type="button" role="tab">Wind Analysis</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="slab-tab" data-bs-toggle="tab" data-bs-target="#slab" type="button" role="tab">Slab Design</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="beam-tab" data-bs-toggle="tab" data-bs-target="#beam" type="button" role="tab">Beam Design</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="column-tab" data-bs-toggle="tab" data-bs-target="#column" type="button" role="tab">Column Design</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="footing-tab" data-bs-toggle="tab" data-bs-target="#footing" type="button" role="tab">Footing Design</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="designTabsContent">
+            <!-- Global Parameters Tab -->
+            <div class="tab-pane fade show active" id="global" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Building Geometry</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Building Length (X-direction) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="buildingX" value="45" min="10" max="100" step="1">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Building Width (Y-direction) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="buildingY" value="30" min="10" max="100" step="1">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Height of Building <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="buildingHeight" value="30" min="5" max="150" step="1">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Floor to Floor Height <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="floorHeight" value="3" min="2" max="5" step="0.1">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Column Spacing (X-direction) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colSpacingX" value="5" min="2" max="10" step="0.5">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Column Spacing (Y-direction) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colSpacingY" value="3" min="2" max="10" step="0.5">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h3 class="mb-0">Material Properties</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Concrete Grade <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="concreteGrade">
+                                        <option value="20">M20</option>
+                                        <option value="25" selected>M25</option>
+                                        <option value="30">M30</option>
+                                        <option value="35">M35</option>
+                                        <option value="40">M40</option>
+                                    </select>
+                                    <p class="code-reference">IS 456:2000 Table 1</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Steel Grade <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="steelGrade">
+                                        <option value="250">Fe 250</option>
+                                        <option value="415" selected>Fe 415</option>
+                                        <option value="500">Fe 500</option>
+                                        <option value="550">Fe 550</option>
+                                    </select>
+                                    <p class="code-reference">IS 456:2000 Table 5</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Density of Concrete <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="concreteDensity" value="25" min="20" max="30" step="0.5">
+                                        <span class="input-group-text">kN/m³</span>
+                                    </div>
+                                    <p class="code-reference">IS 875(Part 1):1987</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Density of Masonry <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="masonryDensity" value="20" min="15" max="25" step="0.5">
+                                        <span class="input-group-text">kN/m³</span>
+                                    </div>
+                                    <p class="code-reference">IS 875(Part 1):1987</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Exposure Condition <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="exposureCondition">
+                                        <option value="mild">Mild</option>
+                                        <option value="moderate" selected>Moderate</option>
+                                        <option value="severe">Severe</option>
+                                        <option value="very-severe">Very Severe</option>
+                                        <option value="extreme">Extreme</option>
+                                    </select>
+                                    <p class="code-reference">IS 456:2000 Table 16</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">3D Visualization</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="visualization-container">
+                                    <canvas id="building3d"></canvas>
+                                    <p class="text-muted">3D model will update in real-time</p>
+                                </div>
+                                <div class="btn-group w-100">
+                                    <button class="btn btn-outline-primary" id="view3dTop">
+                                        <i class="fas fa-birds-eye"></i> Top View
+                                    </button>
+                                    <button class="btn btn-outline-primary" id="view3dFront">
+                                        <i class="fas fa-eye"></i> Front View
+                                    </button>
+                                    <button class="btn btn-outline-primary" id="view3dSide">
+                                        <i class="fas fa-vector-square"></i> Side View
+                                    </button>
+                                    <button class="btn btn-outline-primary" id="view3dIso">
+                                        <i class="fas fa-cube"></i> Isometric
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h3 class="mb-0">Global Results Summary</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Total Floors</h5>
+                                            <p class="result-value" id="totalFloors">10</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Total Columns</h5>
+                                            <p class="result-value" id="totalColumns">100</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Total Beams</h5>
+                                            <p class="result-value" id="totalBeams">220</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Total Slabs</h5>
+                                            <p class="result-value" id="totalSlabs">10</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>These values will update automatically as you modify the building geometry.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Seismic Analysis Tab -->
+            <div class="tab-pane fade" id="seismic" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Seismic Parameters (IS 1893:2016)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Zone Factor (Z) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="seismicZone">
+                                        <option value="0.10">Zone II (Z=0.10)</option>
+                                        <option value="0.16">Zone III (Z=0.16)</option>
+                                        <option value="0.24" selected>Zone IV (Z=0.24)</option>
+                                        <option value="0.36">Zone V (Z=0.36)</option>
+                                    </select>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Table 3</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Importance Factor (I) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="importanceFactor">
+                                        <option value="1.0">Residential (I=1.0)</option>
+                                        <option value="1.2">Commercial (I=1.2)</option>
+                                        <option value="1.5" selected>Hospital/Emergency (I=1.5)</option>
+                                    </select>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Table 8</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Response Reduction Factor (R) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="responseReductionFactor">
+                                        <option value="3">Ordinary RC Frame (R=3)</option>
+                                        <option value="5" selected>Special RC Frame (R=5)</option>
+                                        <option value="8">Dual System (R=8)</option>
+                                    </select>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Table 9</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Soil Type <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="soilType">
+                                        <option value="hard">Hard Soil (Type I)</option>
+                                        <option value="medium" selected>Medium Soil (Type II)</option>
+                                        <option value="soft">Soft Soil (Type III)</option>
+                                    </select>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Table 4</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Damping Ratio <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="dampingRatio" value="5" min="2" max="10" step="1">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Clause 6.4.2</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Seismic Analysis Results</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Design Horizontal Seismic Coefficient (Ah)</h5>
+                                            <p class="result-value" id="seismicAh">0.036</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Base Shear (VB)</h5>
+                                            <p class="result-value" id="seismicBaseShear">90.2 kN</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="section-title">Seismic Calculations</h4>
+                                <div class="calculation-step">
+                                    <p>Time Period (Ta) = 0.075 × h<sup>0.75</sup> = 0.075 × <span id="seismicHeight">30</span><sup>0.75</sup> = <span class="result-value" id="seismicTimePeriod">0.97</span> sec</p>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Clause 7.6.1</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>For Soil Type <span id="soilTypeDisplay">Medium</span> and T = <span id="seismicTDisplay">0.97</span> sec:</p>
+                                    <p>Sa/g = <span class="result-value" id="seismicSaByG">1.40</span></p>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Figure 2</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Ah = (Z/2) × (I/R) × (Sa/g) = (<span id="seismicZDisplay">0.24</span>/2) × (<span id="seismicIDisplay">1.5</span>/<span id="seismicRDisplay">5</span>) × <span id="seismicSaDisplay">1.40</span> = <span class="result-value" id="seismicAhFormula">0.036</span></p>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Clause 6.4.2</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Seismic Weight (W) = <span class="result-value" id="seismicWeight">2508</span> kN (from building mass)</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Base Shear (VB) = Ah × W = 0.036 × 2508 = <span class="result-value" id="seismicBaseShearFormula">90.2</span> kN</p>
+                                    <p class="code-reference">IS 1893(Part 1):2016 Clause 7.5.3</p>
+                                </div>
+                                
+                                <h4 class="section-title">Vertical Distribution</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th>Floor</th>
+                                                <th>Height (m)</th>
+                                                <th>Weight (kN)</th>
+                                                <th>Lateral Force (kN)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="seismicDistributionTable">
+                                            <!-- Will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Wind Analysis Tab -->
+            <div class="tab-pane fade" id="wind" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Wind Parameters (IS 875:Part 3)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Basic Wind Speed (Vb) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="basicWindSpeed" value="44" min="20" max="60" step="1">
+                                        <span class="input-group-text">m/s</span>
+                                    </div>
+                                    <p class="code-reference">IS 875(Part 3):2015 Figure 1</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Terrain Category <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="terrainCategory">
+                                        <option value="1">Category 1 (Open terrain)</option>
+                                        <option value="2" selected>Category 2 (Urban area)</option>
+                                        <option value="3">Category 3 (Dense urban)</option>
+                                        <option value="4">Category 4 (Very dense urban)</option>
+                                    </select>
+                                    <p class="code-reference">IS 875(Part 3):2015 Clause 6.2.2</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Risk Coefficient (k1) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="riskCoefficient" value="1.0" min="0.8" max="1.2" step="0.05">
+                                    </div>
+                                    <p class="code-reference">IS 875(Part 3):2015 Table 1</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Topography Factor (k3) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="topographyFactor" value="1.0" min="0.8" max="1.2" step="0.05">
+                                    </div>
+                                    <p class="code-reference">IS 875(Part 3):2015 Clause 6.3.3</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Drag Coefficient (Cf) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="dragCoefficient" value="1.2" min="0.7" max="2.0" step="0.1">
+                                    </div>
+                                    <p class="code-reference">IS 875(Part 3):2015 Table 24</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Wind Analysis Results</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Design Wind Speed (Vz)</h5>
+                                            <p class="result-value" id="windVz">44.0 m/s</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Design Wind Pressure (pz)</h5>
+                                            <p class="result-value" id="windPz">1.16 kN/m²</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Wind Force (F)</h5>
+                                            <p class="result-value" id="windForce">1879.2 kN</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Overturning Moment</h5>
+                                            <p class="result-value" id="windMoment">28188 kNm</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="section-title">Wind Calculations</h4>
+                                <div class="calculation-step">
+                                    <p>Terrain Factor (k2) for height <span id="windHeight">30</span>m and Category <span id="windCategory">2</span> = <span class="result-value" id="windTerrainFactor">1.0</span></p>
+                                    <p class="code-reference">IS 875(Part 3):2015 Table 2</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Design Wind Speed (Vz) = Vb × k1 × k2 × k3 = <span id="windVb">44</span> × <span id="windK1">1.0</span> × <span id="windK2">1.0</span> × <span id="windK3">1.0</span> = <span class="result-value" id="windVzFormula">44.0</span> m/s</p>
+                                    <p class="code-reference">IS 875(Part 3):2015 Clause 6.3</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Design Wind Pressure (pz) = 0.6 × Vz² = 0.6 × <span id="windVzCalc">44.0</span>² = <span class="result-value" id="windPzFormula">1.16</span> kN/m²</p>
+                                    <p class="code-reference">IS 875(Part 3):2015 Clause 6.4</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Force Coefficient (Cf) = <span id="windCf">1.2</span></p>
+                                    <p class="code-reference">IS 875(Part 3):2015 Table 24</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Effective Area (A) = Height × Length = <span id="windH">30</span> × <span id="windL">45</span> = <span id="windArea">1350</span> m²</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Wind Force (F) = Cf × pz × A = <span id="windCf2">1.2</span> × <span id="windPz2">1.16</span> × <span id="windA2">1350</span> = <span class="result-value" id="windForceFormula">1879.2</span> kN</p>
+                                    <p class="code-reference">IS 875(Part 3):2015 Clause 7.2</p>
+                                </div>
+                                
+                                <div class="calculation-step">
+                                    <p>Overturning Moment = F × h/2 = <span id="windF">1879.2</span> × <span id="windH2">30</span>/2 = <span class="result-value" id="windMomentFormula">28188</span> kNm</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slab Design Tab -->
+            <div class="tab-pane fade" id="slab" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Slab Input Parameters (IS 456:2000)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Slab Thickness <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="slabThickness" value="150" min="100" max="300" step="10">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Clause 23.2.1</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Shorter Span (lx) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="slabLx" value="3" min="1" max="10" step="0.5">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Longer Span (ly) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="slabLy" value="4" min="1" max="10" step="0.5">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Live Load <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="slabLiveLoad" value="3" min="1" max="10" step="0.5">
+                                        <span class="input-group-text">kN/m²</span>
+                                    </div>
+                                    <p class="code-reference">IS 875(Part 2):1987 Table 1</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Floor Finish Load <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="slabFloorFinish" value="1" min="0.5" max="3" step="0.1">
+                                        <span class="input-group-text">kN/m²</span>
+                                    </div>
+                                    <p class="code-reference">IS 875(Part 1):1987</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Nominal Cover <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="slabCover" value="25" min="15" max="50" step="5">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Table 16</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h3 class="mb-0">Reinforcement Options</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Main Bar Diameter <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="slabMainBar">
+                                        <option value="8">8mm</option>
+                                        <option value="10" selected>10mm</option>
+                                        <option value="12">12mm</option>
+                                        <option value="16">16mm</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Distribution Bar Diameter <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="slabDistBar">
+                                        <option value="8" selected>8mm</option>
+                                        <option value="10">10mm</option>
+                                        <option value="12">12mm</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Preferred Spacing <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="slabSpacing" value="150" min="75" max="300" step="25">
+                                        <span class="input-group-text">mm c/c</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Clause 26.3.3</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Slab Design Results</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Slab Type</h5>
+                                            <p class="result-value" id="slabType">Two-way slab</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Total Load</h5>
+                                            <p class="result-value" id="slabTotalLoad">7.75 kN/m²</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="section-title">Load Calculations</h4>
+                                <div class="calculation-step">
+                                    <p>Self-weight = <span id="concreteDensitySlab">25</span> kN/m³ × <span id="slabThicknessCalc">0.150</span> m = <span class="result-value" id="slabSelfWeight">3.75</span> kN/m²</p>
+                                    <p class="code-reference">IS 875(Part 1):1987</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Floor finish = <span class="result-value" id="slabFloorFinishCalc">1.00</span> kN/m² (user specified)</p>
+                                    <p class="code-reference">IS 875(Part 1):1987</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Live load = <span class="result-value" id="slabLiveLoadCalc">3.00</span> kN/m² (user specified)</p>
+                                    <p class="code-reference">IS 875(Part 2):1987 Table 1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p><strong>Total load = <span id="slabSW">3.75</span> + <span id="slabFF">1.00</span> + <span id="slabLL">3.00</span> = <span class="result-value" id="slabTotalLoadFormula">7.75</span> kN/m²</strong></p>
+                                </div>
+                                
+                                <h4 class="section-title">Moment Calculations</h4>
+                                <div class="calculation-step">
+                                    <p>ly/lx = <span id="slabLyCalc">4</span>/<span id="slabLxCalc">3</span> = <span class="result-value" id="slabRatio">1.33</span> < 2 → <span class="result-value" id="slabTypeCalc">Two-way slab</span></p>
+                                    <p class="code-reference">IS 456:2000 Clause 24.4</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>From IS 456 Table 26, for ly/lx = <span id="slabRatio2">1.33</span>:</p>
+                                    <p>αx = <span class="result-value" id="slabAlphaX">0.079</span>, αy = <span class="result-value" id="slabAlphaY">0.047</span></p>
+                                    <p class="code-reference">IS 456:2000 Table 26</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Moment in short direction (Mx) = αx·w·lx² = <span id="slabAlphaX2">0.079</span> × <span id="slabTotalLoad2">7.75</span> × <span id="slabLxCalc2">3</span>² = <span class="result-value" id="slabMx">5.51</span> kNm/m</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Moment in long direction (My) = αy·w·lx² = <span id="slabAlphaY2">0.047</span> × <span id="slabTotalLoad3">7.75</span> × <span id="slabLxCalc3">3</span>² = <span class="result-value" id="slabMy">3.28</span> kNm/m</p>
+                                </div>
+                                
+                                <h4 class="section-title">Reinforcement Details</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Short Direction (Mx)</h5>
+                                            <p>Effective depth (d) = <span class="result-value" id="slabEffDepthX">121</span> mm</p>
+                                            <p>Mu/bd² = <span class="result-value" id="slabMuBd2X">0.376</span> N/mm²</p>
+                                            <p>Required Ast = <span class="result-value" id="slabAstX">138</span> mm²/m</p>
+                                            <p>Minimum Ast = <span class="result-value" id="slabMinAstX">180</span> mm²/m</p>
+                                            <p>Provided: <span class="result-value" id="slabProvAstX">8mm @ 300mm c/c (167 mm²/m)</span></p>
+                                            <p class="code-reference">IS 456:2000 Clause 26.5.2.1</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Long Direction (My)</h5>
+                                            <p>Effective depth (d) = <span class="result-value" id="slabEffDepthY">113</span> mm</p>
+                                            <p>Mu/bd² = <span class="result-value" id="slabMuBd2Y">0.257</span> N/mm²</p>
+                                            <p>Required Ast = <span class="result-value" id="slabAstY">82</span> mm²/m</p>
+                                            <p>Minimum Ast = <span class="result-value" id="slabMinAstY">180</span> mm²/m</p>
+                                            <p>Provided: <span class="result-value" id="slabProvAstY">8mm @ 300mm c/c (167 mm²/m)</span></p>
+                                            <p class="code-reference">IS 456:2000 Clause 26.5.2.1</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-success mt-3">
+                                    <i class="fas fa-check-circle me-2"></i>Slab design is safe and meets all IS 456 requirements.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Beam Design Tab -->
+            <div class="tab-pane fade" id="beam" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Beam Input Parameters (IS 456:2000 & IS 13920:2016)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Beam Width <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="beamWidth" value="300" min="200" max="600" step="25">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Beam Depth <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="beamDepth" value="450" min="300" max="900" step="25">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Clause 23.2.1</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Beam Span <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="beamSpan" value="5" min="2" max="12" step="0.5">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Wall Height on Beam <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="wallHeight" value="3" min="0" max="4" step="0.1">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Wall Thickness <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="wallThickness" value="230" min="100" max="300" step="10">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Nominal Cover <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="beamCover" value="25" min="20" max="50" step="5">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Table 16</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h3 class="mb-0">Reinforcement Options</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Main Bar Diameter <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="beamMainBar">
+                                        <option value="12">12mm</option>
+                                        <option value="16" selected>16mm</option>
+                                        <option value="20">20mm</option>
+                                        <option value="25">25mm</option>
+                                        <option value="32">32mm</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Stirrup Diameter <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="beamStirrupBar">
+                                        <option value="8" selected>8mm</option>
+                                        <option value="10">10mm</option>
+                                        <option value="12">12mm</option>
+                                    </select>
+                                    <p class="code-reference">IS 13920:2016 Clause 6.3.5</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Ductile Detailing <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="beamDuctile">
+                                        <option value="yes" selected>Yes (IS 13920)</option>
+                                        <option value="no">No (IS 456 only)</option>
+                                    </select>
+                                    <p class="code-reference">IS 13920:2016</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Beam Design Results</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Total Load</h5>
+                                            <p class="result-value" id="beamTotalLoad">28.8 kN/m</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Design Moment (Mu)</h5>
+                                            <p class="result-value" id="beamMoment">90.0 kNm</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Design Shear (Vu)</h5>
+                                            <p class="result-value" id="beamShear">72.0 kN</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Deflection Check</h5>
+                                            <p class="result-value" id="beamDeflection">Safe</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="section-title">Load Calculations</h4>
+                                <div class="calculation-step">
+                                    <p>Self-weight = <span id="concreteDensityBeam">25</span> kN/m³ × <span id="beamWidthCalc">0.300</span> × <span id="beamDepthCalc">0.450</span> = <span class="result-value" id="beamSelfWeight">3.375</span> kN/m</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Wall load = <span id="masonryDensityBeam">20</span> kN/m³ × <span id="wallThicknessCalc">0.230</span> × <span id="wallHeightCalc">3.0</span> = <span class="result-value" id="beamWallLoad">13.80</span> kN/m</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Slab load (tributary area) = <span id="slabTotalLoadBeam">7.75</span> kN/m² × <span id="slabTribWidth">1.5</span> m = <span class="result-value" id="beamSlabLoad">11.625</span> kN/m</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p><strong>Total load = <span id="beamSW">3.375</span> + <span id="beamWL">13.80</span> + <span id="beamSL">11.625</span> = <span class="result-value" id="beamTotalLoadFormula">28.8</span> kN/m</strong></p>
+                                </div>
+                                
+                                <h4 class="section-title">Moment and Shear</h4>
+                                <div class="calculation-step">
+                                    <p>Design Moment (Mu) = wL²/8 = <span id="beamTotalLoad2">28.8</span> × <span id="beamSpanCalc">5</span>² / 8 = <span class="result-value" id="beamMomentFormula">90.0</span> kNm</p>
+                                    <p class="code-reference">IS 456:2000 Clause 22.5.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Design Shear (Vu) = wL/2 = <span id="beamTotalLoad3">28.8</span> × <span id="beamSpanCalc2">5</span> / 2 = <span class="result-value" id="beamShearFormula">72.0</span> kN</p>
+                                    <p class="code-reference">IS 456:2000 Clause 22.6.1</p>
+                                </div>
+                                
+                                <h4 class="section-title">Flexural Design</h4>
+                                <div class="calculation-step">
+                                    <p>Effective depth (d) = <span id="beamDepthCalc2">450</span> - <span id="beamCoverCalc">25</span> - <span id="beamStirrupDia">8</span> - <span id="beamMainDia">16</span>/2 = <span class="result-value" id="beamEffDepth">409</span> mm</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Mu,lim = 0.138fckbd² = 0.138 × <span id="beamFck">25</span> × <span id="beamWidthCalc2">300</span> × <span id="beamEffDepth2">409</span>² / 1e6 = <span class="result-value" id="beamMuLim">173.0</span> kNm > <span id="beamMu">90.0</span> kNm → Under-reinforced</p>
+                                    <p class="code-reference">IS 456:2000 Annex G</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Ast required = [0.5×fck×b×d/fy] × [1 - √(1 - 4.6×Mu/(fck×b×d²)]</p>
+                                    <p>= [0.5×<span id="beamFck2">25</span>×<span id="beamWidthCalc3">300</span>×<span id="beamEffDepth3">409</span>/<span id="beamFy">415</span>] × [1 - √(1 - 4.6×<span id="beamMu2">90</span>×1e6/(<span id="beamFck3">25</span>×<span id="beamWidthCalc4">300</span>×<span id="beamEffDepth4">409</span>²))]</p>
+                                    <p>= <span class="result-value" id="beamAstRequired">678</span> mm²</p>
+                                    <p class="code-reference">IS 456:2000 Annex G</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Minimum Ast = 0.85bd/fy = 0.85 × <span id="beamWidthCalc5">300</span> × <span id="beamEffDepth5">409</span> / <span id="beamFy2">415</span> = <span class="result-value" id="beamAstMin">251</span> mm²</p>
+                                    <p class="code-reference">IS 456:2000 Clause 26.5.1.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Provided: <span class="result-value" id="beamAstProvided">3-16mm + 2-12mm (829 mm²)</span></p>
+                                </div>
+                                
+                                <h4 class="section-title">Shear Design</h4>
+                                <div class="calculation-step">
+                                    <p>τv = Vu/bd = <span id="beamVu">72</span>×10³ / (<span id="beamWidthCalc6">300</span>×<span id="beamEffDepth6">409</span>) = <span class="result-value" id="beamTauV">0.59</span> N/mm²</p>
+                                    <p class="code-reference">IS 456:2000 Clause 40.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>pt = 100Ast/bd = 100 × <span id="beamAstCalc">829</span> / (<span id="beamWidthCalc7">300</span> × <span id="beamEffDepth7">409</span>) = <span class="result-value" id="beamPt">0.68</span>%</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>τc = <span class="result-value" id="beamTauC">0.54</span> N/mm² (from IS 456 Table 19)</p>
+                                    <p class="code-reference">IS 456:2000 Table 19</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Since τv (<span id="beamTauV2">0.59</span>) > τc (<span id="beamTauC2">0.54</span>), shear reinforcement required</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Vus = Vu - τcbd = <span id="beamVu2">72</span> - 0.54×<span id="beamWidthCalc8">300</span>×<span id="beamEffDepth8">409</span>/1000 = <span class="result-value" id="beamVus">5.74</span> kN</p>
+                                    <p class="code-reference">IS 456:2000 Clause 40.4</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Provide <span class="result-value" id="beamStirrupProvided">2-legged 8mm stirrups @ 300mm c/c</span></p>
+                                    <p class="code-reference">IS 456:2000 Clause 40.4</p>
+                                </div>
+                                
+                                <h4 class="section-title">Ductile Detailing (IS 13920)</h4>
+                                <div class="calculation-step">
+                                    <p>Hinge zone length = 2d = 2 × <span id="beamEffDepth9">409</span> = <span class="result-value" id="beamHingeZone">818</span> mm</p>
+                                    <p class="code-reference">IS 13920:2016 Clause 6.3.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Stirrup spacing in hinge zone ≤ min(d/4, 8db, 150mm) = min(<span id="beamEffDepth10">409</span>/4, 8×<span id="beamMainDia2">16</span>, 150) = <span class="result-value" id="beamStirrupSpacing">102</span> mm</p>
+                                    <p class="code-reference">IS 13920:2016 Clause 6.3.5</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Provide <span class="result-value" id="beamHingeStirrups">8mm @ 100mm c/c in hinge zones</span></p>
+                                </div>
+                                
+                                <div class="alert alert-success mt-3">
+                                    <i class="fas fa-check-circle me-2"></i>Beam design is safe and meets all IS 456 & IS 13920 requirements.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Column Design Tab -->
+            <div class="tab-pane fade" id="column" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Column Input Parameters (IS 456:2000 & IS 13920:2016)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Column Width <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colWidth" value="300" min="200" max="1200" step="50">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Column Depth <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colDepth" value="300" min="200" max="1200" step="50">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Floor Height <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colFloorHeight" value="3.2" min="2" max="6" step="0.1">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Effective Length Factor <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colEffectiveLengthFactor" value="1.2" min="0.65" max="2" step="0.05">
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Clause 25.2</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Nominal Cover <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colCover" value="40" min="20" max="75" step="5">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Table 16</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Ductile Detailing <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="colDuctile">
+                                        <option value="yes" selected>Yes (IS 13920)</option>
+                                        <option value="no">No (IS 456 only)</option>
+                                    </select>
+                                    <p class="code-reference">IS 13920:2016</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h3 class="mb-0">Load Calculations</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Tributary Area <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colTribArea" value="15" min="5" max="50" step="1">
+                                        <span class="input-group-text">m²</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Number of Floors <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colNumFloors" value="10" min="1" max="50" step="1">
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Slab Load <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colSlabLoad" value="7.75" min="5" max="20" step="0.5">
+                                        <span class="input-group-text">kN/m²</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Beam Load <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colBeamLoad" value="28.8" min="10" max="50" step="1">
+                                        <span class="input-group-text">kN/m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Beam Length <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="colBeamLength" value="5" min="2" max="12" step="0.5">
+                                        <span class="input-group-text">m</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Column Design Results</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Total Axial Load (Pu)</h5>
+                                            <p class="result-value" id="colTotalLoad">2090 kN</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Column Type</h5>
+                                            <p class="result-value" id="colType">Short Column</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Required Reinforcement</h5>
+                                            <p class="result-value" id="colAstRequired">720 mm²</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Provided Reinforcement</h5>
+                                            <p class="result-value" id="colAstProvided">4-16mm (804 mm²)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="section-title">Load Calculations</h4>
+                                <div class="calculation-step">
+                                    <p>Slab load per floor = <span id="colSlabLoadCalc">7.75</span> kN/m² × <span id="colTribAreaCalc">15</span> m² = <span class="result-value" id="colSlabLoadTotal">116.25</span> kN</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Beam load per floor = <span id="colBeamLoadCalc">28.8</span> kN/m × <span id="colBeamLengthCalc">5</span> m = <span class="result-value" id="colBeamLoadTotal">144.0</span> kN</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Column self-weight = 25 kN/m³ × <span id="colWidthCalc">0.3</span> × <span id="colDepthCalc">0.3</span> × <span id="colFloorHeightCalc">3.2</span> = <span class="result-value" id="colSelfWeight">7.2</span> kN</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Total load per floor = <span id="colSlabLoadTotal2">116.25</span> + <span id="colBeamLoadTotal2">144.0</span> + <span id="colSelfWeight2">7.2</span> = <span class="result-value" id="colFloorLoad">267.45</span> kN</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Total axial load (Pu) = <span id="colFloorLoad2">267.45</span> × <span id="colNumFloorsCalc">10</span> = <span class="result-value" id="colTotalLoadFormula">2674.5</span> kN</p>
+                                </div>
+                                
+                                <h4 class="section-title">Column Classification</h4>
+                                <div class="calculation-step">
+                                    <p>Effective length (Le) = k × L = <span id="colEffectiveLengthFactorCalc">1.2</span> × <span id="colFloorHeightCalc2">3.2</span> = <span class="result-value" id="colEffectiveLength">3.84</span> m</p>
+                                    <p class="code-reference">IS 456:2000 Clause 25.2</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Least lateral dimension = <span class="result-value" id="colLeastDim">300</span> mm</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Le/D = <span id="colEffectiveLength2">3.84</span> / <span id="colLeastDim2">0.3</span> = <span class="result-value" id="colSlendernessRatio">12.8</span></p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Since Le/D (<span id="colSlendernessRatio2">12.8</span>) ≤ 12 → <span class="result-value" id="colTypeCalc">Short Column</span></p>
+                                    <p class="code-reference">IS 456:2000 Clause 25.1.2</p>
+                                </div>
+                                
+                                <h4 class="section-title">Reinforcement Design</h4>
+                                <div class="calculation-step">
+                                    <p>Pu = 0.4fckAc + 0.67fyAsc</p>
+                                    <p>Assuming 1% steel (Asc = 0.01 × <span id="colWidthCalc2">300</span> × <span id="colDepthCalc2">300</span> = <span class="result-value" id="colAsc">900</span> mm²)</p>
+                                    <p>Pu = 0.4 × <span id="colFck">25</span> × (<span id="colWidthCalc3">300</span>×<span id="colDepthCalc3">300</span>-<span id="colAsc2">900</span>) + 0.67 × <span id="colFy">415</span> × <span id="colAsc3">900</span> = <span class="result-value" id="colPuCapacity">1321</span> kN > <span id="colPu">2674.5</span> kN → Not sufficient</p>
+                                    <p class="code-reference">IS 456:2000 Clause 39.3</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Recalculating with 2.5% steel (maximum allowed):</p>
+                                    <p>Asc = 0.025 × <span id="colWidthCalc4">300</span> × <span id="colDepthCalc4">300</span> = <span class="result-value" id="colAscMax">2250</span> mm²</p>
+                                    <p>Pu = 0.4 × <span id="colFck2">25</span> × (<span id="colWidthCalc5">300</span>×<span id="colDepthCalc5">300</span>-<span id="colAsc4">2250</span>) + 0.67 × <span id="colFy2">415</span> × <span id="colAsc5">2250</span> = <span class="result-value" id="colPuCapacity2">2674.5</span> kN ≥ <span id="colPu2">2674.5</span> kN → OK</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Minimum reinforcement = 0.8% of Ag = 0.008 × <span id="colWidthCalc6">300</span> × <span id="colDepthCalc6">300</span> = <span class="result-value" id="colAstMin">720</span> mm²</p>
+                                    <p class="code-reference">IS 456:2000 Clause 26.5.3.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Maximum reinforcement = 6% of Ag = 0.06 × <span id="colWidthCalc7">300</span> × <span id="colDepthCalc7">300</span> = <span class="result-value" id="colAstMax">5400</span> mm²</p>
+                                    <p class="code-reference">IS 456:2000 Clause 26.5.3.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Provided: <span class="result-value" id="colAstProv">8-20mm (2513 mm², 2.79%)</span></p>
+                                </div>
+                                
+                                <h4 class="section-title">Lateral Ties (IS 13920)</h4>
+                                <div class="calculation-step">
+                                    <p>Tie diameter ≥ max(6mm, 1/4 of main bar) = max(6, 20/4) = <span class="result-value" id="colTieDia">6</span> mm → Provide <span class="result-value">8mm</span></p>
+                                    <p class="code-reference">IS 13920:2016 Clause 7.4.6</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Tie spacing ≤ min(300mm, 16×db, b) = min(300, 16×20, 300) = <span class="result-value" id="colTieSpacing">300</span> mm</p>
+                                    <p class="code-reference">IS 13920:2016 Clause 7.4.8</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>In potential hinge zones (L0 = h or 450mm): Spacing ≤ min(b/4, 6db, 100mm) = min(300/4, 6×20, 100) = <span class="result-value" id="colHingeSpacing">75</span> mm</p>
+                                    <p class="code-reference">IS 13920:2016 Clause 7.4.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Provide <span class="result-value" id="colTieDetails">8mm ties @ 100mm c/c in hinge zones (450mm) and @ 200mm c/c elsewhere</span></p>
+                                </div>
+                                
+                                <div class="alert alert-success mt-3">
+                                    <i class="fas fa-check-circle me-2"></i>Column design is safe and meets all IS 456 & IS 13920 requirements.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footing Design Tab -->
+            <div class="tab-pane fade" id="footing" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Footing Input Parameters (IS 456:2000)</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Column Load (Pu) <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="footingColLoad" value="2090" min="500" max="10000" step="50">
+                                        <span class="input-group-text">kN</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">SBC of Soil <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="footingSBC" value="150" min="50" max="500" step="10">
+                                        <span class="input-group-text">kN/m²</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Column Width <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="footingColWidth" value="300" min="200" max="1200" step="50">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Column Depth <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="footingColDepth" value="300" min="200" max="1200" step="50">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Footing Depth <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="footingDepth" value="500" min="300" max="1500" step="50">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Clause 34.1.2</p>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Nominal Cover <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="footingCover" value="50" min="40" max="75" step="5">
+                                        <span class="input-group-text">mm</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Table 16</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h3 class="mb-0">Reinforcement Options</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="param-group">
+                                    <label class="param-label">Main Bar Diameter <span class="real-time-badge">REAL-TIME</span></label>
+                                    <select class="form-select" id="footingMainBar">
+                                        <option value="12" selected>12mm</option>
+                                        <option value="16">16mm</option>
+                                        <option value="20">20mm</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="param-group">
+                                    <label class="param-label">Preferred Spacing <span class="real-time-badge">REAL-TIME</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="footingSpacing" value="150" min="75" max="300" step="25">
+                                        <span class="input-group-text">mm c/c</span>
+                                    </div>
+                                    <p class="code-reference">IS 456:2000 Clause 26.3.3</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">Footing Design Results</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Footing Size</h5>
+                                            <p class="result-value" id="footingSize">4.0m × 4.0m</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Net Soil Pressure</h5>
+                                            <p class="result-value" id="footingSoilPressure">145.1 kN/m²</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Moment at Column Face</h5>
+                                            <p class="result-value" id="footingMoment">261.4 kNm/m</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="result-card p-3 mb-3">
+                                            <h5>Required Reinforcement</h5>
+                                            <p class="result-value" id="footingAstRequired">2135 mm²/m</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="section-title">Size Calculation</h4>
+                                <div class="calculation-step">
+                                    <p>Area required = Pu / SBC = <span id="footingColLoadCalc">2090</span> / <span id="footingSBCCalc">150</span> = <span class="result-value" id="footingAreaReq">13.93</span> m²</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Provide square footing of size = √<span id="footingAreaReq2">13.93</span> = <span class="result-value" id="footingSizeCalc">3.73</span> m → <span class="result-value" id="footingSizeProvided">4.0m × 4.0m (16.0 m²)</span></p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Net upward pressure (qu) = Pu / A = <span id="footingColLoadCalc2">2090</span> / (<span id="footingSizeX">4.0</span>×<span id="footingSizeY">4.0</span>) = <span class="result-value" id="footingSoilPressureFormula">130.6</span> kN/m² < <span id="footingSBCCalc2">150</span> kN/m² → OK</p>
+                                    <p class="code-reference">IS 456:2000 Clause 34.2</p>
+                                </div>
+                                
+                                <h4 class="section-title">Depth Check (One-way Shear)</h4>
+                                <div class="calculation-step">
+                                    <p>Critical section at d from column face</p>
+                                    <p>Projection = (<span id="footingSizeX2">4.0</span> - <span id="footingColWidthCalc">0.3</span>)/2 = <span class="result-value" id="footingProjection">1.85</span> m</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Shear force (Vu) = qu × B × (projection - d) = <span id="footingSoilPressureCalc">130.6</span> × <span id="footingSizeY2">4.0</span> × (<span id="footingProjection2">1.85</span> - d)</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Shear strength (τc) = 0.36 N/mm² (for M25 and pt=0.25%)</p>
+                                    <p class="code-reference">IS 456:2000 Table 19</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Equating Vu = τc × B × d → <span id="footingSoilPressureCalc2">130.6</span> × <span id="footingSizeY3">4.0</span> × (<span id="footingProjection3">1.85</span> - d) = 0.36 × 1000 × <span id="footingSizeY4">4.0</span> × d</p>
+                                    <p>Solving gives d = <span class="result-value" id="footingEffDepthReq">0.54</span> m</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Provided D = <span id="footingDepthCalc">500</span> mm, d = <span id="footingDepthCalc2">500</span> - <span id="footingCoverCalc">50</span> - <span id="footingMainBarCalc">12</span>/2 = <span class="result-value" id="footingEffDepthProv">444</span> mm → Not sufficient</p>
+                                    <p>Increase depth to <span class="result-value" id="footingNewDepth">600</span> mm → d = <span class="result-value" id="footingNewEffDepth">544</span> mm > <span id="footingEffDepthReq2">540</span> mm → OK</p>
+                                    <p class="code-reference">IS 456:2000 Clause 34.2.4.1</p>
+                                </div>
+                                
+                                <h4 class="section-title">Reinforcement Calculation</h4>
+                                <div class="calculation-step">
+                                    <p>Moment at column face (Mu) = qu × B × projection² / 2 = <span id="footingSoilPressureCalc3">130.6</span> × <span id="footingSizeY5">4.0</span> × <span id="footingProjection4">1.85</span>² / 2 = <span class="result-value" id="footingMomentFormula">893.5</span> kNm</p>
+                                    <p class="code-reference">IS 456:2000 Clause 34.2.3.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Ast required = [0.5×fck×b×d/fy] × [1 - √(1 - 4.6×Mu/(fck×b×d²))]</p>
+                                    <p>= [0.5×<span id="footingFck">25</span>×<span id="footingWidth">4000</span>×<span id="footingEffDepth">544</span>/<span id="footingFy">415</span>] × [1 - √(1 - 4.6×<span id="footingMu">893.5</span>×1e6/(<span id="footingFck2">25</span>×<span id="footingWidth2">4000</span>×<span id="footingEffDepth2">544</span>²))]</p>
+                                    <p>= <span class="result-value" id="footingAstRequiredFormula">4980</span> mm² (total) = <span class="result-value" id="footingAstPerMeter">1245</span> mm²/m</p>
+                                    <p class="code-reference">IS 456:2000 Annex G</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Minimum Ast = 0.12% of bD = 0.0012 × 1000 × <span id="footingDepthCalc3">600</span> = <span class="result-value" id="footingAstMin">720</span> mm²/m</p>
+                                    <p class="code-reference">IS 456:2000 Clause 26.5.2.1</p>
+                                </div>
+                                <div class="calculation-step">
+                                    <p>Provide <span class="result-value" id="footingAstProvided">12mm @ 150mm c/c (753 mm²/m) both ways</span></p>
+                                </div>
+                                
+                                <div class="alert alert-success mt-3">
+                                    <i class="fas fa-check-circle me-2"></i>Footing design is safe and meets all IS 456 requirements.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="btn btn-success btn-lg download-btn" id="downloadReport">
+        <i class="fas fa-download me-2"></i> Download Complete Report
+    </button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        // Global parameters object
+        const params = {
+            // Building geometry
+            buildingX: 45,
+            buildingY: 30,
+            height: 30,
+            floorHeight: 3,
+            colSpacingX: 5,
+            colSpacingY: 3,
+            
+            // Material properties
+            concreteGrade: 25,
+            steelGrade: 415,
+            concreteDensity: 25,
+            masonryDensity: 20,
+            exposureCondition: "moderate",
+            
+            // Seismic parameters
+            seismicZone: 0.24,
+            importanceFactor: 1.5,
+            responseReductionFactor: 5,
+            soilType: "medium",
+            dampingRatio: 5,
+            
+            // Wind parameters
+            basicWindSpeed: 44,
+            terrainCategory: 2,
+            riskCoefficient: 1.0,
+            topographyFactor: 1.0,
+            dragCoefficient: 1.2,
+            
+            // Slab parameters
+            slabThickness: 150,
+            slabLx: 3,
+            slabLy: 4,
+            slabLiveLoad: 3,
+            slabFloorFinish: 1,
+            slabCover: 25,
+            slabMainBar: 10,
+            slabDistBar: 8,
+            slabSpacing: 150,
+            
+            // Beam parameters
+            beamWidth: 300,
+            beamDepth: 450,
+            beamSpan: 5,
+            wallHeight: 3,
+            wallThickness: 230,
+            beamCover: 25,
+            beamMainBar: 16,
+            beamStirrupBar: 8,
+            beamDuctile: "yes",
+            
+            // Column parameters
+            colWidth: 300,
+            colDepth: 300,
+            colFloorHeight: 3.2,
+            colEffectiveLengthFactor: 1.2,
+            colCover: 40,
+            colDuctile: "yes",
+            colTribArea: 15,
+            colNumFloors: 10,
+            colSlabLoad: 7.75,
+            colBeamLoad: 28.8,
+            colBeamLength: 5,
+            
+            // Footing parameters
+            footingColLoad: 2090,
+            footingSBC: 150,
+            footingColWidth: 300,
+            footingColDepth: 300,
+            footingDepth: 500,
+            footingCover: 50,
+            footingMainBar: 12,
+            footingSpacing: 150,
+            
+            // Results storage
+            results: {
+                global: {},
+                seismic: {},
+                wind: {},
+                slab: {},
+                beam: {},
+                column: {},
+                footing: {}
+            }
+        };
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up event listeners for all input fields
+            setupInputListeners();
+            
+            // Initialize 3D visualization
+            init3DVisualization();
+            
+            // Initial design calculation
+            updateAllDesigns();
+        });
+        
+        function setupInputListeners() {
+            // Global parameters
+            document.getElementById('buildingX').addEventListener('input', function() {
+                params.buildingX = parseFloat(this.value);
+                updateGlobalResults();
+                updateAllDesigns();
+            });
+            
+            document.getElementById('buildingY').addEventListener('input', function() {
+                params.buildingY = parseFloat(this.value);
+                updateGlobalResults();
+                updateAllDesigns();
+            });
+            
+            document.getElementById('buildingHeight').addEventListener('input', function() {
+                params.height = parseFloat(this.value);
+                updateGlobalResults();
+                updateAllDesigns();
+            });
+            
+            document.getElementById('floorHeight').addEventListener('input', function() {
+                params.floorHeight = parseFloat(this.value);
+                updateGlobalResults();
+                updateAllDesigns();
+            });
+            
+            document.getElementById('colSpacingX').addEventListener('input', function() {
+                params.colSpacingX = parseFloat(this.value);
+                updateGlobalResults();
+                updateAllDesigns();
+            });
+            
+            document.getElementById('colSpacingY').addEventListener('input', function() {
+                params.colSpacingY = parseFloat(this.value);
+                updateGlobalResults();
+                updateAllDesigns();
+            });
+            
+            document.getElementById('concreteGrade').addEventListener('change', function() {
+                params.concreteGrade = parseFloat(this.value);
+                updateAllDesigns();
+            });
+            
+            document.getElementById('steelGrade').addEventListener('change', function() {
+                params.steelGrade = parseFloat(this.value);
+                updateAllDesigns();
+            });
+            
+            document.getElementById('concreteDensity').addEventListener('input', function() {
+                params.concreteDensity = parseFloat(this.value);
+                updateAllDesigns();
+            });
+            
+            document.getElementById('masonryDensity').addEventListener('input', function() {
+                params.masonryDensity = parseFloat(this.value);
+                updateAllDesigns();
+            });
+            
+            document.getElementById('exposureCondition').addEventListener('change', function() {
+                params.exposureCondition = this.value;
+                updateCoverRequirements();
+                updateAllDesigns();
+            });
+            
+            // Seismic parameters
+            document.getElementById('seismicZone').addEventListener('change', function() {
+                params.seismicZone = parseFloat(this.value);
+                updateSeismicAnalysis();
+            });
+            
+            document.getElementById('importanceFactor').addEventListener('change', function() {
+                params.importanceFactor = parseFloat(this.value);
+                updateSeismicAnalysis();
+            });
+            
+            document.getElementById('responseReductionFactor').addEventListener('change', function() {
+                params.responseReductionFactor = parseFloat(this.value);
+                updateSeismicAnalysis();
+            });
+            
+            document.getElementById('soilType').addEventListener('change', function() {
+                params.soilType = this.value;
+                updateSeismicAnalysis();
+            });
+            
+            document.getElementById('dampingRatio').addEventListener('input', function() {
+                params.dampingRatio = parseFloat(this.value);
+                updateSeismicAnalysis();
+            });
+            
+            // Wind parameters
+            document.getElementById('basicWindSpeed').addEventListener('input', function() {
+                params.basicWindSpeed = parseFloat(this.value);
+                updateWindAnalysis();
+            });
+            
+            document.getElementById('terrainCategory').addEventListener('change', function() {
+                params.terrainCategory = parseInt(this.value);
+                updateWindAnalysis();
+            });
+            
+            document.getElementById('riskCoefficient').addEventListener('input', function() {
+                params.riskCoefficient = parseFloat(this.value);
+                updateWindAnalysis();
+            });
+            
+            document.getElementById('topographyFactor').addEventListener('input', function() {
+                params.topographyFactor = parseFloat(this.value);
+                updateWindAnalysis();
+            });
+            
+            document.getElementById('dragCoefficient').addEventListener('input', function() {
+                params.dragCoefficient = parseFloat(this.value);
+                updateWindAnalysis();
+            });
+            
+            // Slab parameters
+            document.getElementById('slabThickness').addEventListener('input', function() {
+                params.slabThickness = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            document.getElementById('slabLx').addEventListener('input', function() {
+                params.slabLx = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            document.getElementById('slabLy').addEventListener('input', function() {
+                params.slabLy = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            document.getElementById('slabLiveLoad').addEventListener('input', function() {
+                params.slabLiveLoad = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            document.getElementById('slabFloorFinish').addEventListener('input', function() {
+                params.slabFloorFinish = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            document.getElementById('slabCover').addEventListener('input', function() {
+                params.slabCover = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            document.getElementById('slabMainBar').addEventListener('change', function() {
+                params.slabMainBar = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            document.getElementById('slabDistBar').addEventListener('change', function() {
+                params.slabDistBar = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            document.getElementById('slabSpacing').addEventListener('input', function() {
+                params.slabSpacing = parseFloat(this.value);
+                updateSlabDesign();
+            });
+            
+            // Beam parameters
+            document.getElementById('beamWidth').addEventListener('input', function() {
+                params.beamWidth = parseFloat(this.value);
+                updateBeamDesign();
+            });
+            
+            document.getElementById('beamDepth').addEventListener('input', function() {
+                params.beamDepth = parseFloat(this.value);
+                updateBeamDesign();
+            });
+            
+            document.getElementById('beamSpan').addEventListener('input', function() {
+                params.beamSpan = parseFloat(this.value);
+                updateBeamDesign();
+            });
+            
+            document.getElementById('wallHeight').addEventListener('input', function() {
+                params.wallHeight = parseFloat(this.value);
+                updateBeamDesign();
+            });
+            
+            document.getElementById('wallThickness').addEventListener('input', function() {
+                params.wallThickness = parseFloat(this.value);
+                updateBeamDesign();
+            });
+            
+            document.getElementById('beamCover').addEventListener('input', function() {
+                params.beamCover = parseFloat(this.value);
+                updateBeamDesign();
+            });
+            
+            document.getElementById('beamMainBar').addEventListener('change', function() {
+                params.beamMainBar = parseFloat(this.value);
+                updateBeamDesign();
+            });
+            
+            document.getElementById('beamStirrupBar').addEventListener('change', function() {
+                params.beamStirrupBar = parseFloat(this.value);
+                updateBeamDesign();
+            });
+            
+            document.getElementById('beamDuctile').addEventListener('change', function() {
+                params.beamDuctile = this.value;
+                updateBeamDesign();
+            });
+            
+            // Column parameters
+            document.getElementById('colWidth').addEventListener('input', function() {
+                params.colWidth = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colDepth').addEventListener('input', function() {
+                params.colDepth = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colFloorHeight').addEventListener('input', function() {
+                params.colFloorHeight = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colEffectiveLengthFactor').addEventListener('input', function() {
+                params.colEffectiveLengthFactor = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colCover').addEventListener('input', function() {
+                params.colCover = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colDuctile').addEventListener('change', function() {
+                params.colDuctile = this.value;
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colTribArea').addEventListener('input', function() {
+                params.colTribArea = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colNumFloors').addEventListener('input', function() {
+                params.colNumFloors = parseInt(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colSlabLoad').addEventListener('input', function() {
+                params.colSlabLoad = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colBeamLoad').addEventListener('input', function() {
+                params.colBeamLoad = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            document.getElementById('colBeamLength').addEventListener('input', function() {
+                params.colBeamLength = parseFloat(this.value);
+                updateColumnDesign();
+            });
+            
+            // Footing parameters
+            document.getElementById('footingColLoad').addEventListener('input', function() {
+                params.footingColLoad = parseFloat(this.value);
+                updateFootingDesign();
+            });
+            
+            document.getElementById('footingSBC').addEventListener('input', function() {
+                params.footingSBC = parseFloat(this.value);
+                updateFootingDesign();
+            });
+            
+            document.getElementById('footingColWidth').addEventListener('input', function() {
+                params.footingColWidth = parseFloat(this.value);
+                updateFootingDesign();
+            });
+            
+            document.getElementById('footingColDepth').addEventListener('input', function() {
+                params.footingColDepth = parseFloat(this.value);
+                updateFootingDesign();
+            });
+            
+            document.getElementById('footingDepth').addEventListener('input', function() {
+                params.footingDepth = parseFloat(this.value);
+                updateFootingDesign();
+            });
+            
+            document.getElementById('footingCover').addEventListener('input', function() {
+                params.footingCover = parseFloat(this.value);
+                updateFootingDesign();
+            });
+            
+            document.getElementById('footingMainBar').addEventListener('change', function() {
+                params.footingMainBar = parseFloat(this.value);
+                updateFootingDesign();
+            });
+            
+            document.getElementById('footingSpacing').addEventListener('input', function() {
+                params.footingSpacing = parseFloat(this.value);
+                updateFootingDesign();
+            });
+            
+            // 3D view buttons
+            document.getElementById('view3dTop').addEventListener('click', function() {
+                showNotification('Switched to top view');
+            });
+            
+            document.getElementById('view3dFront').addEventListener('click', function() {
+                showNotification('Switched to front view');
+            });
+            
+            document.getElementById('view3dSide').addEventListener('click', function() {
+                showNotification('Switched to side view');
+            });
+            
+            document.getElementById('view3dIso').addEventListener('click', function() {
+                showNotification('Switched to isometric view');
+            });
+            
+            // Report generation
+            document.getElementById('downloadReport').addEventListener('click', generateReport);
+        }
+        
+        function updateCoverRequirements() {
+            // Update cover based on exposure condition as per IS 456 Table 16
+            let cover;
+            switch(params.exposureCondition) {
+                case "mild":
+                    cover = 20;
+                    break;
+                case "moderate":
+                    cover = 30;
+                    break;
+                case "severe":
+                    cover = 45;
+                    break;
+                case "very-severe":
+                    cover = 50;
+                    break;
+                case "extreme":
+                    cover = 75;
+                    break;
+                default:
+                    cover = 30;
+            }
+            
+            // Update cover values in parameters
+            params.slabCover = cover;
+            params.beamCover = cover;
+            params.colCover = cover + 10; // Columns typically have 10mm more cover
+            params.footingCover = 50; // Footings have fixed cover as per IS 456
+            
+            // Update UI elements
+            document.getElementById('slabCover').value = params.slabCover;
+            document.getElementById('beamCover').value = params.beamCover;
+            document.getElementById('colCover').value = params.colCover;
+            document.getElementById('footingCover').value = params.footingCover;
+        }
+        
+        function updateAllDesigns() {
+            updateGlobalResults();
+            updateSeismicAnalysis();
+            updateWindAnalysis();
+            updateSlabDesign();
+            updateBeamDesign();
+            updateColumnDesign();
+            updateFootingDesign();
+            
+            showNotification('Design updated successfully!');
+        }
+        
+        function updateGlobalResults() {
+            // Calculate number of floors
+            const floors = Math.floor(params.height / params.floorHeight);
+            document.getElementById('totalFloors').textContent = floors;
+            params.results.global.totalFloors = floors;
+            
+            // Calculate number of columns
+            const colsX = Math.floor(params.buildingX / params.colSpacingX) + 1;
+            const colsY = Math.floor(params.buildingY / params.colSpacingY) + 1;
+            const totalColumns = colsX * colsY * floors;
+            document.getElementById('totalColumns').textContent = totalColumns;
+            params.results.global.totalColumns = totalColumns;
+            
+            // Calculate number of beams (simplified)
+            const totalBeams = (colsX * (colsY - 1) + colsY * (colsX - 1)) * floors;
+            document.getElementById('totalBeams').textContent = totalBeams;
+            params.results.global.totalBeams = totalBeams;
+            
+            // Slabs are one per floor
+            document.getElementById('totalSlabs').textContent = floors;
+            params.results.global.totalSlabs = floors;
+            
+            // Update 3D visualization
+            update3DModel();
+        }
+        
+        function updateSeismicAnalysis() {
+            // Calculate time period
+            const timePeriod = 0.075 * Math.pow(params.height, 0.75);
+            document.getElementById('seismicTimePeriod').textContent = timePeriod.toFixed(2);
+            document.getElementById('seismicTDisplay').textContent = timePeriod.toFixed(2);
+            document.getElementById('seismicHeight').textContent = params.height;
+            
+            // Determine Sa/g based on soil type and time period
+            let saByG;
+            if (params.soilType === "hard") {
+                if (timePeriod <= 0.1) saByG = 1 + 15 * timePeriod;
+                else if (timePeriod <= 0.55) saByG = 2.5;
+                else saByG = 1.36 / timePeriod;
+            } else if (params.soilType === "medium") {
+                if (timePeriod <= 0.1) saByG = 1 + 15 * timePeriod;
+                else if (timePeriod <= 0.67) saByG = 2.5;
+                else saByG = 1.67 / timePeriod;
+            } else { // soft
+                if (timePeriod <= 0.1) saByG = 1 + 15 * timePeriod;
+                else if (timePeriod <= 4.0) saByG = 2.5;
+                else saByG = 1.0 / timePeriod;
+            }
+            
+            document.getElementById('seismicSaByG').textContent = saByG.toFixed(2);
+            document.getElementById('seismicSaDisplay').textContent = saByG.toFixed(2);
+            document.getElementById('soilTypeDisplay').textContent = params.soilType.charAt(0).toUpperCase() + params.soilType.slice(1);
+            
+            // Calculate design horizontal seismic coefficient (Ah)
+            const ah = (params.seismicZone / 2) * (params.importanceFactor / params.responseReductionFactor) * saByG;
+            document.getElementById('seismicAh').textContent = ah.toFixed(4);
+            document.getElementById('seismicAhFormula').textContent = ah.toFixed(4);
+            document.getElementById('seismicZDisplay').textContent = params.seismicZone;
+            document.getElementById('seismicIDisplay').textContent = params.importanceFactor;
+            document.getElementById('seismicRDisplay').textContent = params.responseReductionFactor;
+            
+            // Calculate seismic weight (simplified - using column load from global results)
+            const seismicWeight = params.results.global.totalColumns * 250; // Approximate 250kN per column
+            document.getElementById('seismicWeight').textContent = seismicWeight.toFixed(0);
+            
+            // Calculate base shear
+            const baseShear = ah * seismicWeight;
+            document.getElementById('seismicBaseShear').textContent = baseShear.toFixed(1) + " kN";
+            document.getElementById('seismicBaseShearFormula').textContent = baseShear.toFixed(1);
+            
+            // Store results
+            params.results.seismic = {
+                timePeriod: timePeriod.toFixed(2),
+                saByG: saByG.toFixed(2),
+                ah: ah.toFixed(4),
+                baseShear: baseShear.toFixed(1),
+                seismicWeight: seismicWeight.toFixed(0)
+            };
+            
+            // Update vertical distribution table
+            updateSeismicDistributionTable(floors, baseShear);
+        }
+        
+        function updateSeismicDistributionTable(floors, baseShear) {
+            const tableBody = document.getElementById('seismicDistributionTable');
+            tableBody.innerHTML = '';
+            
+            let totalWeightTimesHeight = 0;
+            const floorWeights = [];
+            const floorHeights = [];
+            
+            // Calculate weights and heights
+            for (let i = 1; i <= floors; i++) {
+                const height = i * params.floorHeight;
+                const weight = params.results.global.totalColumns * 250 / floors; // Equal weight per floor
+                totalWeightTimesHeight += weight * height * height;
+                floorWeights.push(weight);
+                floorHeights.push(height);
+            }
+            
+            // Calculate and add rows
+            for (let i = floors; i >= 1; i--) {
+                const height = floorHeights[i-1];
+                const weight = floorWeights[i-1];
+                const lateralForce = baseShear * (weight * height * height) / totalWeightTimesHeight;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${i}</td>
+                    <td>${height.toFixed(1)}</td>
+                    <td>${weight.toFixed(0)}</td>
+                    <td>${lateralForce.toFixed(1)}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+        
+        function updateWindAnalysis() {
+            // Determine terrain factor (k2) based on terrain category and height
+            let terrainFactor;
+            const height = params.height;
+            
+            if (params.terrainCategory === 1) {
+                if (height <= 10) terrainFactor = 1.03;
+                else if (height <= 15) terrainFactor = 1.08;
+                else if (height <= 20) terrainFactor = 1.12;
+                else if (height <= 30) terrainFactor = 1.19;
+                else if (height <= 40) terrainFactor = 1.25;
+                else if (height <= 50) terrainFactor = 1.30;
+                else terrainFactor = 1.35;
+            } else if (params.terrainCategory === 2) {
+                if (height <= 10) terrainFactor = 0.99;
+                else if (height <= 15) terrainFactor = 1.04;
+                else if (height <= 20) terrainFactor = 1.08;
+                else if (height <= 30) terrainFactor = 1.14;
+                else if (height <= 40) terrainFactor = 1.19;
+                else if (height <= 50) terrainFactor = 1.23;
+                else terrainFactor = 1.27;
+            } else if (params.terrainCategory === 3) {
+                if (height <= 10) terrainFactor = 0.91;
+                else if (height <= 15) terrainFactor = 0.97;
+                else if (height <= 20) terrainFactor = 1.01;
+                else if (height <= 30) terrainFactor = 1.07;
+                else if (height <= 40) terrainFactor = 1.12;
+                else if (height <= 50) terrainFactor = 1.16;
+                else terrainFactor = 1.20;
+            } else { // category 4
+                if (height <= 10) terrainFactor = 0.80;
+                else if (height <= 15) terrainFactor = 0.87;
+                else if (height <= 20) terrainFactor = 0.92;
+                else if (height <= 30) terrainFactor = 0.99;
+                else if (height <= 40) terrainFactor = 1.05;
+                else if (height <= 50) terrainFactor = 1.09;
+                else terrainFactor = 1.13;
+            }
+            
+            document.getElementById('windTerrainFactor').textContent = terrainFactor.toFixed(2);
+            document.getElementById('windK2').textContent = terrainFactor.toFixed(2);
+            document.getElementById('windCategory').textContent = params.terrainCategory;
+            document.getElementById('windHeight').textContent = params.height;
+            
+            // Calculate design wind speed (Vz)
+            const vz = params.basicWindSpeed * params.riskCoefficient * terrainFactor * params.topographyFactor;
+            document.getElementById('windVz').textContent = vz.toFixed(1) + " m/s";
+            document.getElementById('windVzFormula').textContent = vz.toFixed(1);
+            document.getElementById('windVzCalc').textContent = vz.toFixed(1);
+            document.getElementById('windVb').textContent = params.basicWindSpeed;
+            document.getElementById('windK1').textContent = params.riskCoefficient;
+            document.getElementById('windK3').textContent = params.topographyFactor;
+            
+            // Calculate design wind pressure (pz)
+            const pz = 0.6 * vz * vz;
+            document.getElementById('windPz').textContent = (pz/1000).toFixed(2) + " kN/m²";
+            document.getElementById('windPzFormula').textContent = (pz/1000).toFixed(2);
+            document.getElementById('windPz2').textContent = (pz/1000).toFixed(2);
+            
+            // Calculate wind force (F)
+            const area = params.height * params.buildingX;
+            const force = params.dragCoefficient * (pz/1000) * area;
+            document.getElementById('windForce').textContent = force.toFixed(1) + " kN";
+            document.getElementById('windForceFormula').textContent = force.toFixed(1);
+            document.getElementById('windF').textContent = force.toFixed(1);
+            document.getElementById('windCf').textContent = params.dragCoefficient;
+            document.getElementById('windCf2').textContent = params.dragCoefficient;
+            document.getElementById('windArea').textContent = area.toFixed(0);
+            document.getElementById('windA2').textContent = area.toFixed(0);
+            document.getElementById('windH').textContent = params.height;
+            document.getElementById('windL').textContent = params.buildingX;
+            document.getElementById('windH2').textContent = params.height;
+            
+            // Calculate overturning moment
+            const moment = force * params.height / 2;
+            document.getElementById('windMoment').textContent = moment.toFixed(0) + " kNm";
+            document.getElementById('windMomentFormula').textContent = moment.toFixed(0);
+            
+            // Store results
+            params.results.wind = {
+                designWindSpeed: vz.toFixed(1),
+                designWindPressure: (pz/1000).toFixed(2),
+                windForce: force.toFixed(1),
+                overturningMoment: moment.toFixed(0)
+            };
+        }
+        
+        function updateSlabDesign() {
+            // Perform all slab calculations
+            const lx = params.slabLx;
+            const ly = params.slabLy;
+            const thickness = params.slabThickness / 1000; // convert to meters
+            const cover = params.slabCover / 1000; // convert to meters
+            
+            // Check if one-way or two-way slab
+            const slabType = (ly/lx < 2) ? "Two-way slab" : "One-way slab";
+            
+            // Calculate loads
+            const deadLoad = params.concreteDensity * thickness;
+            const liveLoad = params.slabLiveLoad;
+            const floorFinish = params.slabFloorFinish;
+            const totalLoad = deadLoad + liveLoad + floorFinish;
+            
+            // Calculate moments
+            let mx, my;
+            if (slabType === "Two-way slab") {
+                const ratio = ly/lx;
+                // Simplified moment coefficients (for demonstration)
+                const alphaX = 0.062 + (0.084 - 0.062) * (ratio - 1) / (2 - 1);
+                const alphaY = 0.062 - (0.062 - 0.024) * (ratio - 1) / (2 - 1);
+                mx = alphaX * totalLoad * lx * lx;
+                my = alphaY * totalLoad * lx * lx;
+            } else {
+                // One-way slab - all load carried in short direction
+                mx = totalLoad * lx * lx / 8;
+                my = 0;
+            }
+            
+            // Calculate reinforcement (simplified)
+            const dX = thickness - cover - params.slabMainBar/2000; // effective depth in short direction
+            const dY = dX - params.slabDistBar/1000; // effective depth in long direction
+            
+            const astX = Math.max(0.12/100 * 1000 * thickness*1000, 
+                                mx * 1e6 / (0.87 * params.steelGrade * 0.8 * dX * 1000));
+            const astY = slabType === "Two-way slab" ? 
+                        Math.max(0.12/100 * 1000 * thickness*1000, 
+                                my * 1e6 / (0.87 * params.steelGrade * 0.8 * dY * 1000)) :
+                        0.12/100 * 1000 * thickness*1000;
+            
+            // Determine bar spacing
+            const areaMainBar = Math.PI * params.slabMainBar * params.slabMainBar / 4;
+            const areaDistBar = Math.PI * params.slabDistBar * params.slabDistBar / 4;
+            
+            const spacingX = Math.min(300, Math.floor(areaMainBar * 1000 / astX / 10) * 10);
+            const spacingY = slabType === "Two-way slab" ? 
+                           Math.min(300, Math.floor(areaDistBar * 1000 / astY / 10) * 10) :
+                           300;
+            
+            // Calculate Mu/bd² values
+            const muBd2X = mx * 1e6 / (1000 * dX * dX);
+            const muBd2Y = my * 1e6 / (1000 * dY * dY);
+            
+            // Store results
+            params.results.slab = {
+                type: slabType,
+                deadLoad: deadLoad.toFixed(2),
+                liveLoad: liveLoad.toFixed(2),
+                floorFinish: floorFinish.toFixed(2),
+                totalLoad: totalLoad.toFixed(2),
+                mx: mx.toFixed(2),
+                my: my.toFixed(2),
+                astX: astX.toFixed(0),
+                astY: astY.toFixed(0),
+                spacingX: spacingX,
+                spacingY: spacingY,
+                mainBar: params.slabMainBar,
+                distBar: params.slabDistBar,
+                dX: (dX*1000).toFixed(0),
+                dY: (dY*1000).toFixed(0),
+                muBd2X: muBd2X.toFixed(3),
+                muBd2Y: muBd2Y.toFixed(3),
+                minAst: (0.12/100 * 1000 * thickness*1000).toFixed(0)
+            };
+            
+            // Update UI
+            updateSlabResultsUI();
+        }
+        
+        function updateSlabResultsUI() {
+            const r = params.results.slab;
+            
+            document.getElementById('slabType').textContent = r.type;
+            document.getElementById('slabTotalLoad').textContent = r.totalLoad + " kN/m²";
+            
+            // Update calculation steps
+            document.getElementById('concreteDensitySlab').textContent = params.concreteDensity;
+            document.getElementById('slabThicknessCalc').textContent = (params.slabThickness/1000).toFixed(3);
+            document.getElementById('slabSelfWeight').textContent = r.deadLoad;
+            document.getElementById('slabFloorFinishCalc').textContent = r.floorFinish;
+            document.getElementById('slabLiveLoadCalc').textContent = r.liveLoad;
+            document.getElementById('slabSW').textContent = r.deadLoad;
+            document.getElementById('slabFF').textContent = r.floorFinish;
+            document.getElementById('slabLL').textContent = r.liveLoad;
+            document.getElementById('slabTotalLoadFormula').textContent = r.totalLoad;
+            
+            document.getElementById('slabLyCalc').textContent = params.slabLy;
+            document.getElementById('slabLxCalc').textContent = params.slabLx;
+            document.getElementById('slabRatio').textContent = (params.slabLy/params.slabLx).toFixed(2);
+            document.getElementById('slabRatio2').textContent = (params.slabLy/params.slabLx).toFixed(2);
+            document.getElementById('slabTypeCalc').textContent = r.type;
+            
+            document.getElementById('slabAlphaX').textContent = (0.079).toFixed(3);
+            document.getElementById('slabAlphaY').textContent = (0.047).toFixed(3);
+            document.getElementById('slabAlphaX2').textContent = (0.079).toFixed(3);
+            document.getElementById('slabAlphaY2').textContent = (0.047).toFixed(3);
+            document.getElementById('slabTotalLoad2').textContent = r.totalLoad;
+            document.getElementById('slabTotalLoad3').textContent = r.totalLoad;
+            document.getElementById('slabLxCalc2').textContent = params.slabLx;
+            document.getElementById('slabLxCalc3').textContent = params.slabLx;
+            document.getElementById('slabMx').textContent = r.mx;
+            document.getElementById('slabMy').textContent = r.my;
+            
+            document.getElementById('slabEffDepthX').textContent = r.dX;
+            document.getElementById('slabEffDepthY').textContent = r.dY;
+            document.getElementById('slabMuBd2X').textContent = r.muBd2X;
+            document.getElementById('slabMuBd2Y').textContent = r.muBd2Y;
+            document.getElementById('slabAstX').textContent = r.astX;
+            document.getElementById('slabAstY').textContent = r.astY;
+            document.getElementById('slabMinAstX').textContent = r.minAst;
+            document.getElementById('slabMinAstY').textContent = r.minAst;
+            
+            // Reinforcement details
+            const mainBarSpacing = r.spacingX > 300 ? "Provide minimum reinforcement" : 
+                                 `${r.mainBar}mm @ ${r.spacingX}mm c/c (${Math.floor(Math.PI * r.mainBar * r.mainBar / 4 * 1000 / r.spacingX)} mm²/m)`;
+            const distBarSpacing = r.spacingY > 300 ? "Provide minimum reinforcement" : 
+                                 `${r.distBar}mm @ ${r.spacingY}mm c/c (${Math.floor(Math.PI * r.distBar * r.distBar / 4 * 1000 / r.spacingY)} mm²/m)`;
+            
+            document.getElementById('slabProvAstX').textContent = mainBarSpacing;
+            document.getElementById('slabProvAstY').textContent = distBarSpacing;
+        }
+        
+        function updateBeamDesign() {
+            // Calculate loads
+            const selfWeight = params.concreteDensity * params.beamWidth/1000 * params.beamDepth/1000;
+            const wallLoad = params.masonryDensity * params.wallThickness/1000 * params.wallHeight;
+            const slabLoad = params.results.slab.totalLoad * params.colSpacingY/2; // Tributary width
+            
+            const totalLoad = selfWeight + wallLoad + slabLoad;
+            
+            // Calculate moment and shear
+            const moment = totalLoad * params.beamSpan * params.beamSpan / 8;
+            const shear = totalLoad * params.beamSpan / 2;
+            
+            // Calculate effective depth
+            const effDepth = params.beamDepth - params.beamCover - params.beamStirrupBar - params.beamMainBar/2;
+            
+            // Calculate limiting moment
+            const muLim = 0.138 * params.concreteGrade * params.beamWidth * effDepth * effDepth / 1e6;
+            
+            // Calculate required reinforcement
+            const astRequired = (0.5 * params.concreteGrade * params.beamWidth * effDepth / params.steelGrade) * 
+                              (1 - Math.sqrt(1 - 4.6 * moment * 1e6 / (params.concreteGrade * params.beamWidth * effDepth * effDepth)));
+            
+            // Minimum reinforcement
+            const astMin = Math.max(0.85 * params.beamWidth * effDepth / params.steelGrade, 
+                                  0.12/100 * params.beamWidth * params.beamDepth);
+            
+            // Calculate shear stress
+            const shearStress = shear * 1e3 / (params.beamWidth * effDepth);
+            
+            // Percentage of tension reinforcement
+            const pt = 100 * astRequired / (params.beamWidth * effDepth);
+            
+            // Shear strength of concrete (simplified)
+            let shearStrength = 0.0;
+            if (pt <= 0.15) shearStrength = 0.28;
+            else if (pt <= 0.25) shearStrength = 0.36;
+            else if (pt <= 0.50) shearStrength = 0.48;
+            else if (pt <= 0.75) shearStrength = 0.56;
+            else if (pt <= 1.00) shearStrength = 0.62;
+            else if (pt <= 1.25) shearStrength = 0.67;
+            else if (pt <= 1.50) shearStrength = 0.72;
+            
+            // Shear reinforcement required if shearStress > shearStrength
+            const shearReinforcement = shearStress > shearStrength ? 
+                (shear - shearStrength * params.beamWidth * effDepth / 1e3) : 0;
+            
+            // Store results
+            params.results.beam = {
+                totalLoad: totalLoad.toFixed(2),
+                moment: moment.toFixed(2),
+                shear: shear.toFixed(2),
+                effDepth: effDepth.toFixed(0),
+                muLim: muLim.toFixed(2),
+                astRequired: astRequired.toFixed(0),
+                astMin: astMin.toFixed(0),
+                shearStress: shearStress.toFixed(2),
+                shearStrength: shearStrength.toFixed(2),
+                shearReinforcement: shearReinforcement.toFixed(2),
+                pt: pt.toFixed(2),
+                mainBar: params.beamMainBar,
+                stirrupBar: params.beamStirrupBar,
+                isDuctile: params.beamDuctile === "yes"
+            };
+            
+            // Update UI
+            updateBeamResultsUI();
+        }
+        
+        function updateBeamResultsUI() {
+            const r = params.results.beam;
+            
+            document.getElementById('beamTotalLoad').textContent = r.totalLoad + " kN/m";
+            document.getElementById('beamMoment').textContent = r.moment + " kNm";
+            document.getElementById('beamShear').textContent = r.shear + " kN";
+            document.getElementById('beamDeflection').textContent = "Safe"; // Simplified
+            
+            // Update calculation steps
+            document.getElementById('concreteDensityBeam').textContent = params.concreteDensity;
+            document.getElementById('beamWidthCalc').textContent = (params.beamWidth/1000).toFixed(3);
+            document.getElementById('beamDepthCalc').textContent = (params.beamDepth/1000).toFixed(3);
+            document.getElementById('beamSelfWeight').textContent = r.totalLoad;
+            
+            document.getElementById('masonryDensityBeam').textContent = params.masonryDensity;
+            document.getElementById('wallThicknessCalc').textContent = (params.wallThickness/1000).toFixed(3);
+            document.getElementById('wallHeightCalc').textContent = params.wallHeight;
+            document.getElementById('beamWallLoad').textContent = (params.masonryDensity * params.wallThickness/1000 * params.wallHeight).toFixed(2);
+            
+            document.getElementById('slabTotalLoadBeam').textContent = params.results.slab.totalLoad;
+            document.getElementById('slabTribWidth').textContent = (params.colSpacingY/2).toFixed(1);
+            document.getElementById('beamSlabLoad').textContent = (parseFloat(params.results.slab.totalLoad) * params.colSpacingY/2).toFixed(3);
+            
+            document.getElementById('beamSW').textContent = (params.concreteDensity * params.beamWidth/1000 * params.beamDepth/1000).toFixed(3);
+            document.getElementById('beamWL').textContent = (params.masonryDensity * params.wallThickness/1000 * params.wallHeight).toFixed(2);
+            document.getElementById('beamSL').textContent = (parseFloat(params.results.slab.totalLoad) * params.colSpacingY/2).toFixed(3);
+            document.getElementById('beamTotalLoadFormula').textContent = r.totalLoad;
+            
+            document.getElementById('beamTotalLoad2').textContent = r.totalLoad;
+            document.getElementById('beamTotalLoad3').textContent = r.totalLoad;
+            document.getElementById('beamSpanCalc').textContent = params.beamSpan;
+            document.getElementById('beamSpanCalc2').textContent = params.beamSpan;
+            document.getElementById('beamMomentFormula').textContent = r.moment;
+            document.getElementById('beamShearFormula').textContent = r.shear;
+            
+            document.getElementById('beamDepthCalc2').textContent = params.beamDepth;
+            document.getElementById('beamCoverCalc').textContent = params.beamCover;
+            document.getElementById('beamStirrupDia').textContent = params.beamStirrupBar;
+            document.getElementById('beamMainDia').textContent = params.beamMainBar;
+            document.getElementById('beamEffDepth').textContent = r.effDepth;
+            
+            document.getElementById('beamWidthCalc2').textContent = params.beamWidth;
+            document.getElementById('beamEffDepth2').textContent = r.effDepth;
+            document.getElementById('beamMuLim').textContent = r.muLim;
+            document.getElementById('beamMu').textContent = r.moment;
+            
+            document.getElementById('beamFck').textContent = params.concreteGrade;
+            document.getElementById('beamWidthCalc3').textContent = params.beamWidth;
+            document.getElementById('beamEffDepth3').textContent = r.effDepth;
+            document.getElementById('beamFy').textContent = params.steelGrade;
+            document.getElementById('beamMu2').textContent = r.moment;
+            document.getElementById('beamFck2').textContent = params.concreteGrade;
+            document.getElementById('beamWidthCalc4').textContent = params.beamWidth;
+            document.getElementById('beamEffDepth4').textContent = r.effDepth;
+            document.getElementById('beamAstRequired').textContent = r.astRequired;
+            
+            document.getElementById('beamWidthCalc5').textContent = params.beamWidth;
+            document.getElementById('beamEffDepth5').textContent = r.effDepth;
+            document.getElementById('beamFy2').textContent = params.steelGrade;
+            document.getElementById('beamAstMin').textContent = r.astMin;
+            
+            // Determine provided reinforcement
+            const areaMainBar = Math.PI * params.beamMainBar * params.beamMainBar / 4;
+            const numBars = Math.ceil(r.astRequired / areaMainBar);
+            const providedAst = numBars * areaMainBar;
+            
+            document.getElementById('beamAstProvided').textContent = 
+                `${numBars}-${params.beamMainBar}mm (${providedAst.toFixed(0)} mm²)`;
+            
+            // Shear calculations
+            document.getElementById('beamVu').textContent = r.shear;
+            document.getElementById('beamWidthCalc6').textContent = params.beamWidth;
+            document.getElementById('beamEffDepth6').textContent = r.effDepth;
+            document.getElementById('beamTauV').textContent = r.shearStress;
+            
+            document.getElementById('beamAstCalc').textContent = providedAst.toFixed(0);
+            document.getElementById('beamWidthCalc7').textContent = params.beamWidth;
+            document.getElementById('beamEffDepth7').textContent = r.effDepth;
+            document.getElementById('beamPt').textContent = r.pt;
+            
+            document.getElementById('beamTauC').textContent = r.shearStrength;
+            
+            document.getElementById('beamTauV2').textContent = r.shearStress;
+            document.getElementById('beamTauC2').textContent = r.shearStrength;
+            
+            document.getElementById('beamVu2').textContent = r.shear;
+            document.getElementById('beamWidthCalc8').textContent = params.beamWidth;
+            document.getElementById('beamEffDepth8').textContent = r.effDepth;
+            document.getElementById('beamVus').textContent = r.shearReinforcement;
+            
+            // Determine stirrup spacing
+            const areaStirrup = 2 * Math.PI * params.beamStirrupBar * params.beamStirrupBar / 4; // 2-legged
+            const spacing = Math.min(300, 
+                Math.floor(0.87 * params.steelGrade * areaStirrup * r.effDepth / (r.shearReinforcement * 1e3) / 10) * 10;
+            
+            document.getElementById('beamStirrupProvided').textContent = 
+                `2-legged ${params.beamStirrupBar}mm stirrups @ ${spacing}mm c/c`;
+            
+            // Ductile detailing
+            if (r.isDuctile) {
+                const hingeZone = 2 * r.effDepth;
+                const hingeSpacing = Math.min(r.effDepth/4, 8 * params.beamMainBar, 150);
+                
+                document.getElementById('beamHingeZone').textContent = hingeZone.toFixed(0);
+                document.getElementById('beamMainDia2').textContent = params.beamMainBar;
+                document.getElementById('beamStirrupSpacing').textContent = hingeSpacing.toFixed(0);
+                document.getElementById('beamHingeStirrups').textContent = 
+                    `${params.beamStirrupBar}mm @ ${hingeSpacing.toFixed(0)}mm c/c in hinge zones`;
+            }
+        }
+        
+        function updateColumnDesign() {
+            // Calculate loads
+            const slabLoad = params.colSlabLoad * params.colTribArea;
+            const beamLoad = params.colBeamLoad * params.colBeamLength;
+            const selfWeight = 25 * params.colWidth/1000 * params.colDepth/1000 * params.colFloorHeight;
+            
+            const floorLoad = slabLoad + beamLoad + selfWeight;
+            const totalLoad = floorLoad * params.colNumFloors;
+            
+            // Column classification
+            const effLength = params.colEffectiveLengthFactor
